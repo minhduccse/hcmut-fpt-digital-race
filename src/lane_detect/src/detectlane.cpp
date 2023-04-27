@@ -13,16 +13,16 @@ int DetectLane::HORIZONTAL = 1;
 Point DetectLane::null = Point();
 
 DetectLane::DetectLane() {
-    cvCreateTrackbar("LowH", "Threshold", &minThreshold[0], 179);
-    cvCreateTrackbar("HighH", "Threshold", &maxThreshold[0], 179);
+    createTrackbar("LowH", "Threshold", &minThreshold[0], 179);
+    createTrackbar("HighH", "Threshold", &maxThreshold[0], 179);
 
-    cvCreateTrackbar("LowS", "Threshold", &minThreshold[1], 255);
-    cvCreateTrackbar("HighS", "Threshold", &maxThreshold[1], 255);
+    createTrackbar("LowS", "Threshold", &minThreshold[1], 255);
+    createTrackbar("HighS", "Threshold", &maxThreshold[1], 255);
 
-    cvCreateTrackbar("LowV", "Threshold", &minThreshold[2], 255);
-    cvCreateTrackbar("HighV", "Threshold", &maxThreshold[2], 255);
+    createTrackbar("LowV", "Threshold", &minThreshold[2], 255);
+    createTrackbar("HighV", "Threshold", &maxThreshold[2], 255);
 
-    cvCreateTrackbar("Shadow Param", "Threshold", &shadowParam, 255);
+    createTrackbar("Shadow Param", "Threshold", &shadowParam, 255);
 }
 
 DetectLane::~DetectLane(){}
@@ -136,7 +136,7 @@ void DetectLane::fillLane(Mat &src)
     for( size_t i = 0; i < lines.size(); i++ )
     {
         Vec4i l = lines[i];
-        line(src, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255), 3, CV_AA);
+        line(src, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255), 3, LINE_AA);
     }
 }
 
@@ -175,7 +175,7 @@ vector<vector<Point> > DetectLane::centerRoadSide(const vector<Mat> &src, int di
     for (int i = 0; i < inputN; i++) {
         std::vector<std::vector<Point> > cnts;
         std::vector<Point> tmp;
-        findContours(src[i], cnts, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+        findContours(src[i], cnts, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
         int cntsN = cnts.size();
         if (cntsN == 0) {
             res.push_back(tmp);
