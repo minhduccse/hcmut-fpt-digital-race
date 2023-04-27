@@ -1,14 +1,15 @@
+
 # ROS_Package_example
 ## I. Installation
-1. Ubuntu 16.04 or newer
-2. One of these following version of [ROS](https://ros.org)
+ - Ubuntu 16.04 or newer
+ - One of these following version of [ROS](https://ros.org)
     - [Lunar Loggerhead](http://wiki.ros.org/lunar)
     - [Melodic Morenia](http://wiki.ros.org/melodic)
     - It is recommended to install the full version
       ```
       $ sudo apt-get install ros-<distro>-desktop-full
       ```
-3. Create catkin workspace
+ - Create catkin workspace
     ```
     $ mkdir -p ~/catkin/src
     $ cd ~/catkin/
@@ -17,7 +18,18 @@
     $ source ~/.bashrc
     ```
   
-4. Install rosbridge-suite
+ - Install rosbridge-suite
     ```
     $ sudo apt-get install ros-<distro>-rosbridge-server
     ```
+    
+ - Run
+
+    ```
+    $ roslaunch lane_detect lane_detect.launch
+    ```
+    
+
+ - Unity info:
+ Team: Team1
+ URL: ws://127.0.0.1:9090
