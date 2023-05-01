@@ -113,6 +113,7 @@ class Detector:
         self.pub = rospy.Publisher('Team1_speed', Float32, queue_size=10)
 
         self._current_image = None
+        self.count = 0
 
     def talker(self):
         rospy.init_node('talker', anonymous=True)
@@ -141,12 +142,12 @@ class Detector:
         rospy.init_node('listener', anonymous=True)
         imageTeam = rospy.Subscriber("Team1_image/compressed", CompressedImage, self.image_callback, queue_size = 1)
 
-        while not rospy.is_shutdown():
-            # only run if there's an image present
-            if self._current_image is not None:
-                results = self.model.detect([self._current_image], verbose=1)
-                r = results[0]
-                # visualize.display_instances(self._current_image, r['rois'], r['masks'], r['class_ids'], self.class_names, r['scores'])
+        # while not rospy.is_shutdown():
+        #     # only run if there's an image present
+        #     if self._current_image is not None:
+        #         results = self.model.detect([self._current_image], verbose=1)
+        #         r = results[0]
+        #         # visualize.display_instances(self._current_image, r['rois'], r['masks'], r['class_ids'], self.class_names, r['scores'])
 
         rospy.loginfo("Waiting for image topics...")
         rospy.spin()
@@ -157,8 +158,12 @@ class Detector:
         self._current_image = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
         rospy.loginfo("Receiving frame...")
         cv2.imshow("Image Window", image_np)
+        img_name="savedImage{0}.jpg"
+        cv2.imwrite(img_name.format(self.count), image_np)
+        self.count = self.count + 1
         cv2.waitKey(30)
-        self.pub.publish(5.0)
+        
+        # self.pub.publish(5.0)
 
 if __name__ == '__main__':
     try:
