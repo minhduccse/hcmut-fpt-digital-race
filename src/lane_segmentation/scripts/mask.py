@@ -59,15 +59,20 @@ sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn import utils
 import mrcnn.model as modellib
 from mrcnn import visualize
+from mrcnn.config import Config
 # Import COCO config
 sys.path.append("/home/ubuntu/Workspace/Mask_RCNN/samples/coco")  # To find local version
 import coco
 
-class InferenceConfig(coco.CocoConfig):
-    # Set batch size to 1 since we'll be running inference on
-    # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
-    GPU_COUNT = 1
-    IMAGES_PER_GPU = 1
+class PredictionConfig(Config):
+	# define the name of the configuration
+	NAME = "lane_segmentation"
+	# number of classes (background + Blue Marbles + Non Blue marbles)
+	NUM_CLASSES = 1 + 1
+	# Set batch size to 1 since we'll be running inference on
+            # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
+	GPU_COUNT = 1
+	IMAGES_PER_GPU = 1
 
 class Detector:
     def __init__(self):
@@ -82,33 +87,19 @@ class Detector:
 
         # Directory of images to run detection on
         self.IMAGE_DIR = "/home/ubuntu/Workspace/Mask_RCNN/images"
-        self.config = InferenceConfig()
+        self.config = PredictionConfig()
         self.config.display()
 
         # Create model object in inference mode.
         self.model = modellib.MaskRCNN(mode="inference", model_dir=self.MODEL_DIR, config=self.config)
 
         # Load weights trained on MS-COCO
-        self.model.load_weights(self.COCO_MODEL_PATH, by_name=True)
+        self.model.load_weights('/home/ubuntu/Workspace/Mask_RCNN/logs/lane_segmentation20230501T0729/mask_rcnn_lane_segmentation_0000.h5', by_name=True)
 
-        self.class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
-                'bus', 'train', 'truck', 'boat', 'traffic light',
-                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird',
-                'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear',
-                'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie',
-                'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-                'kite', 'baseball bat', 'baseball glove', 'skateboard',
-                'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup',
-                'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
-                'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
-                'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed',
-                'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote',
-                'keyboard', 'cell phone', 'microwave', 'oven', 'toaster',
-                'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors',
-                'teddy bear', 'hair drier', 'toothbrush', 'street', 'lane']
+        self.class_names = ['BG', 'lane']
 
-        # Load a random image from the images folder
-        self.file_names = next(os.walk(self.IMAGE_DIR))[2]
+        # # Load a random image from the images folder
+        # self.file_names = next(os.walk(self.IMAGE_DIR))[2]
 
         self.pub = rospy.Publisher('Team1_speed', Float32, queue_size=10)
 
@@ -125,12 +116,12 @@ class Detector:
 
             # Visualize results
             r = results[0]
-            visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], 
-                                        self.class_names, r['scores'])
+            # visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], 
+            #                             self.class_names, r['scores'])
 
             # hello_str = "hello world %s" % rospy.get_time()
             # rospy.loginfo(hello_str)
-            # pub.publish(5.0)
+            pub.publish(5.0)
             rate.sleep()
 
     def listener(self):
@@ -142,12 +133,14 @@ class Detector:
         rospy.init_node('listener', anonymous=True)
         imageTeam = rospy.Subscriber("Team1_image/compressed", CompressedImage, self.image_callback, queue_size = 1)
 
-        # while not rospy.is_shutdown():
-        #     # only run if there's an image present
-        #     if self._current_image is not None:
-        #         results = self.model.detect([self._current_image], verbose=1)
-        #         r = results[0]
-        #         # visualize.display_instances(self._current_image, r['rois'], r['masks'], r['class_ids'], self.class_names, r['scores'])
+        while not rospy.is_shutdown():
+            # only run if there's an image present
+            if self._current_image is not None:
+                results = self.model.detect([self._current_image], verbose=1)
+                r = results[0]
+                # rois_str = "r['rois'][0] %s" % r['rois'][0]
+                rospy.loginfo(r['rois'][0])
+                # visualize.display_instances(self._current_image, r['rois'], r['masks'], r['class_ids'], self.class_names, r['scores'])
 
         rospy.loginfo("Waiting for image topics...")
         rospy.spin()
@@ -158,12 +151,12 @@ class Detector:
         self._current_image = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
         rospy.loginfo("Receiving frame...")
         cv2.imshow("Image Window", image_np)
-        img_name="savedImage{0}.jpg"
-        cv2.imwrite(img_name.format(self.count), image_np)
-        self.count = self.count + 1
+        # img_name="savedImage{0}.jpg"
+        # cv2.imwrite(img_name.format(self.count), image_np)
+        # self.count = self.count + 1
         cv2.waitKey(30)
         
-        # self.pub.publish(5.0)
+        self.pub.publish(5.0)
 
 if __name__ == '__main__':
     try:
