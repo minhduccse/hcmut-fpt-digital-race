@@ -67,10 +67,9 @@ import coco
 class PredictionConfig(Config):
 	# define the name of the configuration
 	NAME = "lane_segmentation"
-	# number of classes (background + Blue Marbles + Non Blue marbles)
+	# number of classes (background + lane)
 	NUM_CLASSES = 1 + 1
-	# Set batch size to 1 since we'll be running inference on
-            # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
+
 	GPU_COUNT = 1
 	IMAGES_PER_GPU = 1
 
@@ -79,50 +78,21 @@ class Detector:
         # Directory to save logs and trained model
         self.MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 
-        # Local path to trained weights file
-        self.COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
-        # Download COCO trained weights from Releases if needed
-        if not os.path.exists(self.COCO_MODEL_PATH):
-            utils.download_trained_weights(self.COCO_MODEL_PATH)
-
-        # Directory of images to run detection on
-        self.IMAGE_DIR = "/home/ubuntu/Workspace/Mask_RCNN/images"
         self.config = PredictionConfig()
         self.config.display()
 
         # Create model object in inference mode.
         self.model = modellib.MaskRCNN(mode="inference", model_dir=self.MODEL_DIR, config=self.config)
 
-        # Load weights trained on MS-COCO
-        self.model.load_weights('/home/ubuntu/Workspace/Mask_RCNN/logs/lane_segmentation20230501T0729/mask_rcnn_lane_segmentation_0000.h5', by_name=True)
+        # Load trained weights
+        self.model.load_weights('/home/ubuntu/Workspace/Weights/mask_rcnn_lane_segmentation_0009.h5', by_name=True)
 
         self.class_names = ['BG', 'lane']
-
-        # # Load a random image from the images folder
-        # self.file_names = next(os.walk(self.IMAGE_DIR))[2]
 
         self.pub = rospy.Publisher('Team1_speed', Float32, queue_size=10)
 
         self._current_image = None
         self.count = 0
-
-    def talker(self):
-        rospy.init_node('talker', anonymous=True)
-        rate = rospy.Rate(10) # 10hz
-        while not rospy.is_shutdown():
-            image = skimage.io.imread(os.path.join(self.IMAGE_DIR, random.choice(file_names)))
-            # Run detection
-            results = self.model.detect([image], verbose=1)
-
-            # Visualize results
-            r = results[0]
-            # visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], 
-            #                             self.class_names, r['scores'])
-
-            # hello_str = "hello world %s" % rospy.get_time()
-            # rospy.loginfo(hello_str)
-            pub.publish(5.0)
-            rate.sleep()
 
     def listener(self):
         # In ROS, nodes are uniquely named. If two nodes with the same
@@ -138,9 +108,7 @@ class Detector:
             if self._current_image is not None:
                 results = self.model.detect([self._current_image], verbose=1)
                 r = results[0]
-                # rois_str = "r['rois'][0] %s" % r['rois'][0]
-                rospy.loginfo(r['rois'][0])
-                # visualize.display_instances(self._current_image, r['rois'], r['masks'], r['class_ids'], self.class_names, r['scores'])
+                visualize.display_instances(self._current_image, r['rois'], r['masks'], r['class_ids'], self.class_names, r['scores'])
 
         rospy.loginfo("Waiting for image topics...")
         rospy.spin()
