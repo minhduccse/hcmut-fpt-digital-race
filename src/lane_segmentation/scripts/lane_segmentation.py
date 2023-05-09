@@ -51,6 +51,8 @@ import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
 
+from skimage.measure import find_contours
+
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../")
 
@@ -89,10 +91,38 @@ class Detector:
 
         self.class_names = ['BG', 'lane']
 
-        self.pub = rospy.Publisher('Team1_speed', Float32, queue_size=10)
+        self.speed_pub = rospy.Publisher('Team1_speed', Float32, queue_size=10)
 
         self._current_image = None
         self.count = 0
+
+        self.x_cor = None
+        self.y_cor = None
+
+    def save_coordinates(self, image, boxes, masks, class_ids, class_names):
+        image = image.split("/")[-1]
+        image_data = []
+
+        for i in range(boxes.shape[0]):
+
+            class_id = class_ids[i]
+            label = class_names[class_id]
+
+            mask = masks[:, :, i]
+            padded_mask = np.zeros(
+                (mask.shape[0] + 2, mask.shape[1] + 2), dtype=np.uint8)
+            padded_mask[1:-1, 1:-1] = mask
+            contours = find_contours(padded_mask, 0.5)
+            for verts in contours:
+                verts = np.fliplr(verts) - 1
+                list_co_ordinates = np.moveaxis(verts, 1, 0).tolist()
+
+                region = {"shape_attributes": {"all_points_x": list_co_ordinates[0],
+                                            "all_points_y": list_co_ordinates[1]},
+                        "region_attributes": {"name": {label: True}}}
+                image_data.append(region)
+        data = image_data
+        return data
 
     def listener(self):
         # In ROS, nodes are uniquely named. If two nodes with the same
@@ -109,6 +139,18 @@ class Detector:
                 results = self.model.detect([self._current_image], verbose=1)
                 r = results[0]
                 visualize.display_instances(self._current_image, r['rois'], r['masks'], r['class_ids'], self.class_names, r['scores'])
+                shapes = self.save_coordinates("/home/ubuntu/catkin/lane_segmentation/validate/savedImage472.jpg", r['rois'], r['masks'], r['class_ids'], self.class_names)
+
+                self.x_cor = None
+                self.y_cor = None
+                plt.figure()
+                for shape in shapes:
+                    if shape is not None:
+                        self.x_cor = shape['shape_attributes']['all_points_x']
+                        self.y_cor = shape['shape_attributes']['all_points_y']
+                        plt.plot(self.x_cor+self.x_cor[:1], self.y_cor+self.y_cor[:1])
+                        plt.gca().invert_yaxis()
+                        plt.show()
 
         rospy.loginfo("Waiting for image topics...")
         rospy.spin()
@@ -124,7 +166,7 @@ class Detector:
         # self.count = self.count + 1
         cv2.waitKey(30)
         
-        self.pub.publish(5.0)
+        self.speed_pub.publish(10.0)
 
 if __name__ == '__main__':
     try:
