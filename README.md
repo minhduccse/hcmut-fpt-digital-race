@@ -83,7 +83,7 @@ In my case, I used makesense.ai
 #### 3.2 Train your own dataset
 
 - Try to train your own dataset by referencing [train_shapes.ipynb](https://github.com/matterport/Mask_RCNN/blob/master/samples/shapes/train_shapes.ipynb)
-- Or by referencing this video: [286 - Object detection using Mask RCNN]([lane_segmentation/validate.ipynb](https://youtu.be/QntADriNHuk))
+- Or by referencing this video: [286 - Object detection using Mask RCNN]([lane_segmentation/validate.ipynb](https://www.youtube.com/watch?v=QntADriNHuk&t=884s&ab_channel=DigitalSreeni)
 
 #### 3.3 Validate your own model
 
