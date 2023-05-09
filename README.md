@@ -111,27 +111,24 @@ Validated results are presented [here](lane_segmentation/validate.ipynb)
 ![](assets/labeling_2.png)
 
 #### Write some code to apply the detector to ROS controller
+It is written in [lane_segmentation.py](src/lane_segmentation/scripts/lane_segmentation.py)
 
 #### Run the simulation with Mask RCNN detector
 ![](assets/demo.gif)
 
+#### Future works will be done to do the Warp Perspective Transformation to calculate the steering angle for the car
+
 ## References
 
-   [1] https://github.com/matterport/Mask_RCNN
+   [1] [Mask R-CNN for Object Detection and Segmentation] https://github.com/matterport/Mask_RCNN
    
-   [2] https://youtu.be/QntADriNHuk
-
-
-
-## Updating...
-
-
+   [2] [286 - Object detection using Mask RCNN: end-to-end from annotation to prediction] https://youtu.be/QntADriNHuk
 
 
 ## Appendix: ROS Package Installation
 ### I. Installation
- - Ubuntu 16.04 or newer
- - One of the following versions of [ROS](https://ros.org)
+- Ubuntu 16.04 or newer
+- One of the following versions of [ROS](https://ros.org)
     - [Lunar Loggerhead](http://wiki.ros.org/lunar)
     - [Melodic Morenia](http://wiki.ros.org/melodic)
     - [Noetic Ninjemys](http://wiki.ros.org/noetic)
@@ -139,29 +136,30 @@ Validated results are presented [here](lane_segmentation/validate.ipynb)
       ```
       $ sudo apt-get install ros-<distro>-desktop-full
       ```
- - Create a catkin workspace
-    ```
-    $ mkdir -p ~/catkin/src
-    $ cd ~/catkin/
-    $ catkin_make
-    $ echo "source ~/catkin/devel/setup.bash" >> ~/.bashrc
-    $ source ~/.bashrc
-    ```
-  
- - Install rosbridge-suite
+- Create a catkin workspace
+```
+mkdir -p ~/catkin/src
+cd ~/catkin/
+catkin_make
+echo "source ~/catkin/devel/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+```
 
-    $ sudo apt-get install ros-<distro>-rosbridge-server
+- Install rosbridge-suite
+```
+sudo apt-get install ros-<distro>-rosbridge-server
+```
 
+### II. Run
+#### ROS Launch
+```
+roslaunch lane_detect lane_detect.launch
+```
     
- ### II. Run
- #### ROS Launch
+#### Unity Simulation Environment
+```
+Team: Team1
+URL: ws://127.0.0.1:9090
+```
 
-    $ roslaunch lane_detect lane_detect.launch
-
-    
- #### Unity Simulation Environment
-
-     Team: Team1
-     URL: ws://127.0.0.1:9090
-
-
+## Updating...
