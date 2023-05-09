@@ -1,0 +1,13 @@
+numpy==1.16.4
+scipy==1.5.4
+Pillow==8.4.0
+cython==0.29.34
+matplotlib==3.3.4
+scikit-image==0.17.2
+tensorflow==1.14.0
+keras==2.0.8
+opencv-python==4.2.0.34
+h5py==2.10.0
+imgaug==0.4.0
+IPython[all]==7.16.3
+protobuf==3.19.6
